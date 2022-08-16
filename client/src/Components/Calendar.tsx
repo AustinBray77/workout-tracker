@@ -1,7 +1,10 @@
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import moment from 'moment';
 import React from 'react';
-import {MaskedViewComponent, StyleSheet, Text, View} from 'react-native';
-import {Colors} from 'react-native/Libraries/NewAppScreen';
+import {StyleSheet, Text, View} from 'react-native';
+import {StackParamList} from '../StackParamList';
+
+type calendarScreenProp = NativeStackNavigationProp<StackParamList, 'Home'>;
 
 const Header = (): JSX.Element => {
   const date: Date = new Date();
