@@ -1,3 +1,5 @@
+export {};
+
 require("dotenv").config();
 
 const express = require("express");
@@ -17,8 +19,12 @@ connection.once("open", () => {
 	console.log("MongoDB connection established!");
 });
 
+const usersRouter = require("./routes/users.ts");
+
+app.use("/users", usersRouter);
+
 app.listen(port, () => {
 	console.log(`Server is running on port: ${port}`);
 });
 
-app.post("/login", (req, res) => {});
+app.post("/login", (req: any, res: any) => {});
