@@ -3,6 +3,7 @@ import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {StackParamList} from '../StackParamList';
 import {
+  Alert,
   Button,
   ImageBackground,
   StyleSheet,
@@ -13,16 +14,39 @@ import {
 import BaseStyles from '../BaseStyles';
 import Colors from '../Colors';
 import StatusCode from '../StatusCode';
+import {codeToString} from '../StatusCode';
 
 type signUpScreenProp = NativeStackNavigationProp<StackParamList, 'SignUp'>;
 
-const trySignUp = (
+const trySignUp = async (
   username: string,
   email: string,
   password: string,
   password2: string,
-): StatusCode => {
-  return StatusCode.Success;
+): Promise<StatusCode> => {
+  if (password != password2) {
+    return StatusCode.Passwords_Do_Not_Match;
+  }
+
+  let result = 0;
+
+  await fetch('http://localhost:3001/add', {
+    method: 'POST',
+    mode: 'cors',
+    body: JSON.stringify({
+      username: username,
+      email: email,
+      password: password,
+    }),
+  })
+    .then(res => {
+      result = res.status;
+    })
+    .catch(err => {
+      result = 404;
+    });
+
+  return result;
 };
 
 const SignUp = () => {
@@ -66,12 +90,20 @@ const SignUp = () => {
             <View style={BaseStyles.mt25}>
               <Button
                 title="Sign Up"
-                onPress={() => {
-                  if (
-                    trySignUp(username, email, password, password2) ==
-                    StatusCode.Success
-                  ) {
+                onPress={async () => {
+                  let res: StatusCode = await trySignUp(
+                    username,
+                    email,
+                    password,
+                    password2,
+                  );
+
+                  if (res == StatusCode.Success) {
                     navigation.navigate('Calendar');
+                  } else {
+                    Alert.alert('Error: Unable to Sign Up', codeToString(res), [
+                      {text: 'Ok'},
+                    ]);
                   }
                 }}
               />

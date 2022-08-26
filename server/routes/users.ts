@@ -22,4 +22,19 @@ router.route("/add").post((req: any, res: any) => {
 		.catch((err: any) => res.status(400).json("Error: " + err));
 });
 
+router.route("/check").post(async (req: any, res: any) => {
+	let username: string = req.body.username;
+	let password: string = req.body.password;
+
+	let user = await User.find({ username: username });
+
+	if (user.get("password") == password) {
+		res.status(200);
+	} else if (user.get("password") == undefined) {
+		res.status(1);
+	} else {
+		res.status(0);
+	}
+});
+
 module.exports = router;

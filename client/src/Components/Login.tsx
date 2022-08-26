@@ -3,6 +3,7 @@ import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {StackParamList} from '../StackParamList';
 import {
+  Alert,
   Button,
   ImageBackground,
   StyleSheet,
@@ -13,11 +14,32 @@ import {
 import BaseStyles from '../BaseStyles';
 import Colors from '../Colors';
 import StatusCode from '../StatusCode';
+import {codeToString} from '../StatusCode';
 
 type loginScreenProp = NativeStackNavigationProp<StackParamList, 'Login'>;
 
-const tryLogin = (username: string, password: string): StatusCode => {
-  return StatusCode.Success;
+const tryLogin = async (
+  username: string,
+  password: string,
+): Promise<StatusCode> => {
+  let result = 0;
+
+  await fetch('http://localhost:3001/check', {
+    method: 'POST',
+    mode: 'cors',
+    body: JSON.stringify({
+      username: username,
+      password: password,
+    }),
+  })
+    .then(res => {
+      result = res.status;
+    })
+    .catch(err => {
+      result = 200;
+    });
+
+  return result;
 };
 
 const Login = () => {
@@ -53,9 +75,15 @@ const Login = () => {
             <View style={BaseStyles.mt25}>
               <Button
                 title="Login"
-                onPress={() => {
-                  if (tryLogin(username, password) == StatusCode.Success) {
+                onPress={async () => {
+                  let res: StatusCode = await tryLogin(username, password);
+
+                  if (res == StatusCode.Success) {
                     navigation.navigate('Calendar');
+                  } else {
+                    Alert.alert('Error: Unable to Login', codeToString(res), [
+                      {text: 'Ok'},
+                    ]);
                   }
                 }}
               />
